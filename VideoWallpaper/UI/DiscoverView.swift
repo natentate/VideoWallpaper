@@ -1,4 +1,4 @@
-import AVKit
+import AVFoundation
 import SwiftUI
 
 struct DiscoverView: View {
@@ -464,7 +464,7 @@ struct RemotePreviewSheet: View {
                 ZStack {
                     Color.black
                     if let player {
-                        VideoPlayer(player: player)
+                        PlayerLayerView(player: player)
                     } else if isResolving {
                         ProgressView().controlSize(.large)
                     } else {
@@ -564,5 +564,54 @@ struct RemotePreviewSheet: View {
             await discover.download(video, file: file, setWhenFinished: setWhenFinished)
         }
         dismiss()
+    }
+}
+
+/// Minimal AVPlayerLayer-backed preview view.
+///
+/// Deliberately avoids SwiftUI's `VideoPlayer` (`_AVKit_SwiftUI`), which aborts during type
+/// metadata initialisation on macOS 27 betas.
+struct PlayerLayerView: NSViewRepresentable {
+    let player: AVPlayer
+
+    final class LayerHostView: NSView {
+        let playerLayer = AVPlayerLayer()
+
+        override init(frame frameRect: NSRect) {
+            super.init(frame: frameRect)
+            wantsLayer = true
+            layer?.backgroundColor = NSColor.black.cgColor
+            playerLayer.videoGravity = .resizeAspect
+            layer?.addSublayer(playerLayer)
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) is not supported")
+        }
+
+        override func layout() {
+            super.layout()
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            playerLayer.frame = bounds
+            CATransaction.commit()
+        }
+    }
+
+    func makeNSView(context: Context) -> LayerHostView {
+        let view = LayerHostView(frame: .zero)
+        view.playerLayer.player = player
+        return view
+    }
+
+    func updateNSView(_ nsView: LayerHostView, context: Context) {
+        if nsView.playerLayer.player !== player {
+            nsView.playerLayer.player = player
+        }
+    }
+
+    static func dismantleNSView(_ nsView: LayerHostView, coordinator: ()) {
+        nsView.playerLayer.player = nil
     }
 }
