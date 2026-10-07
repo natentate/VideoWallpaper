@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "matrix",
+      "title": "Matrix Code",
+      "symbol": "chevron.left.forwardslash.chevron.right",
+      "colors": [
+        "#00140A",
+        "#00C853"
+      ],
+      "pexels": "matrix code",
+      "pixabay": "matrix code",
+      "generator": "matrix"
+    },
+    {
+      "id": "deep-space",
+      "title": "Deep Space",
+      "symbol": "sparkles",
+      "colors": [
+        "#05040F",
+        "#3B1C7A"
+      ],
+      "pexels": "galaxy stars space",
+      "pixabay": "galaxy space",
+      "nasa": "galaxy",
+      "generator": "starfield"
+    },
+    {
+      "id": "rain-window",
+      "title": "Rain on a Window",
+      "symbol": "cloud.rain.fill",
+      "colors": [
+        "#0B1622",
+        "#3E6A8A"
+      ],
+      "pexels": "rain on window",
+      "pixabay": "rain window"
+    },
+    {
+      "id": "spacex",
+      "title": "SpaceX & Launches",
+      "symbol": "flame.fill",
+      "colors": [
+        "#120A05",
+        "#E8590C"
+      ],
+      "pexels": "rocket launch",
+      "pixabay": "rocket launch",
+      "nasa": "spacex launch"
+    },
+    {
+      "id": "earth-orbit",
+      "title": "Earth from Orbit",
+      "symbol": "globe.americas.fill",
+      "colors": [
+        "#020A18",
+        "#1565C0"
+      ],
+      "pexels": "earth from space",
+      "pixabay": "earth space",
+      "nasa": "earth views from space station"
+    },
+    {
+      "id": "nebula",
+      "title": "Nebulae",
+      "symbol": "moon.stars.fill",
+      "colors": [
+        "#12041C",
+        "#C2185B"
+      ],
+      "pexels": "nebula",
+      "pixabay": "nebula",
+      "nasa": "nebula"
+    },
+    {
+      "id": "aurora",
+      "title": "Northern Lights",
+      "symbol": "wand.and.rays",
+      "colors": [
+        "#03140F",
+        "#26A69A"
+      ],
+      "pexels": "aurora borealis",
+      "pixabay": "aurora borealis",
+      "nasa": "aurora"
+    },
+    {
+      "id": "ocean",
+      "title": "Ocean Waves",
+      "symbol": "water.waves",
+      "colors": [
+        "#021B26",
+        "#0097A7"
+      ],
+      "pexels": "ocean waves",
+      "pixabay": "ocean waves"
+    },
+    {
+      "id": "city-night",
+      "title": "City at Night",
+      "symbol": "building.2.fill",
+      "colors": [
+        "#0D0A1A",
+        "#7E57C2"
+      ],
+      "pexels": "city night timelapse",
+      "pixabay": "city night"
+    },
+    {
+      "id": "neon",
+      "title": "Neon & Cyberpunk",
+      "symbol": "bolt.fill",
+      "colors": [
+        "#14001F",
+        "#FF00A8"
+      ],
+      "pexels": "neon cyberpunk",
+      "pixabay": "neon"
+    },
+    {
+      "id": "forest",
+      "title": "Forest & Nature",
+      "symbol": "leaf.fill",
+      "colors": [
+        "#06140A",
+        "#43A047"
+      ],
+      "pexels": "forest",
+      "pixabay": "forest"
+    },
+    {
+      "id": "fireplace",
+      "title": "Cozy Fireplace",
+      "symbol": "flame",
+      "colors": [
+        "#1A0800",
+        "#FF8F00"
+      ],
+      "pexels": "fireplace",
+      "pixabay": "fireplace"
+    },
+    {
+      "id": "snow",
+      "title": "Snowfall",
+      "symbol": "snowflake",
+      "colors": [
+        "#0B1320",
+        "#90CAF9"
+      ],
+      "pexels": "snow falling",
+      "pixabay": "snowfall"
+    },
+    {
+      "id": "storm",
+      "title": "Lightning Storms",
+      "symbol": "cloud.bolt.fill",
+      "colors": [
+        "#07070F",
+        "#5C6BC0"
+      ],
+      "pexels": "lightning storm",
+      "pixabay": "thunderstorm lightning"
+    },
+    {
+      "id": "underwater",
+      "title": "Underwater",
+      "symbol": "fish.fill",
+      "colors": [
+        "#011526",
+        "#0288D1"
+      ],
+      "pexels": "underwater",
+      "pixabay": "underwater"
+    },
+    {
+      "id": "abstract",
+      "title": "Abstract Motion",
+      "symbol": "circle.hexagongrid.fill",
+      "colors": [
+        "#0A0A14",
+        "#00B8D4"
+      ],
+      "pexels": "abstract background loop",
+      "pixabay": "abstract loop"
+    }
+  ]
+}
