@@ -50,6 +50,7 @@ struct MainView: View {
     }
 }
 
+/// Sidebar built from plain buttons (not `List(selection:)`), so every row is reliably clickable.
 struct SidebarView: View {
     @EnvironmentObject private var model: AppModel
     @EnvironmentObject private var library: LibraryStore
@@ -57,27 +58,23 @@ struct SidebarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            List(selection: $model.selectedSection) {
-                Section("Wallpapers") {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 2) {
+                    header("Wallpapers")
                     row(.displays)
-                    row(.library)
-                        .badge(library.wallpapers.count)
+                    row(.library, badge: library.wallpapers.count)
                     row(.favorites)
-                }
-                Section("Get More") {
-                    row(.discover)
-                        .badge(downloads.activeCount)
+                    header("Get More")
+                    row(.discover, badge: downloads.activeCount)
                     row(.create)
-                }
-                Section("Automation") {
+                    header("Automation")
                     row(.focus)
-                }
-                Section {
+                    Divider().padding(.vertical, 8)
                     row(.settings)
                 }
+                .padding(.horizontal, 10)
+                .padding(.top, 8)
             }
-            .listStyle(.sidebar)
-            .scrollContentBackground(.hidden)
 
             NowPlayingFooter()
                 .padding(12)
@@ -85,9 +82,42 @@ struct SidebarView: View {
         .background(VisualEffectBackground(material: .sidebar).ignoresSafeArea())
     }
 
-    private func row(_ item: SidebarItem) -> some View {
-        Label(item.title, systemImage: item.symbol)
-            .tag(item)
+    private func header(_ title: String) -> some View {
+        Text(title)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 8)
+            .padding(.top, 12)
+            .padding(.bottom, 4)
+    }
+
+    private func row(_ item: SidebarItem, badge: Int = 0) -> some View {
+        let isSelected = (model.selectedSection ?? .library) == item
+        return Button {
+            model.selectedSection = item
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: item.symbol)
+                    .frame(width: 20)
+                    .foregroundStyle(isSelected ? Color.white : Color.accentColor)
+                Text(item.title)
+                Spacer(minLength: 4)
+                if badge > 0 {
+                    Text("\(badge)")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(isSelected ? Color.white.opacity(0.9) : Color.secondary)
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .foregroundStyle(isSelected ? Color.white : Color.primary)
+            .background(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(isSelected ? Color.accentColor : Color.clear)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
