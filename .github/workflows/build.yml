@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build macOS app
@@ -23,6 +27,10 @@ jobs:
           swift --version
 
       - name: Build and package
+        timeout-minutes: 20
+        env:
+          # Fail fast (instead of hanging) on expressions the type checker can't solve quickly.
+          EXTRA_SWIFT_FLAGS: "-Xfrontend -solver-expression-time-threshold=60 -Xfrontend -warn-long-expression-type-checking=500"
         run: ./scripts/build.sh
 
       - name: Upload DMG

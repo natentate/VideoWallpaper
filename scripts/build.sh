@@ -29,6 +29,7 @@ xcodebuild \
   CODE_SIGN_IDENTITY="-" \
   CODE_SIGN_STYLE=Manual \
   DEVELOPMENT_TEAM="" \
+  OTHER_SWIFT_FLAGS="\$(inherited) ${EXTRA_SWIFT_FLAGS:-}" \
   build | { command -v xcpretty >/dev/null && xcpretty || cat; }
 
 APP="$DERIVED/Build/Products/$CONFIGURATION/$APP_NAME.app"

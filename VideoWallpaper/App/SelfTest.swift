@@ -51,8 +51,11 @@ enum SelfTest {
         }
         for wallpaper in [matrix, stars] {
             let info = try? await VideoInspector.inspect(wallpaper.fileURL)
-            check(info?.width == 640 && info?.height == 360, "\(wallpaper.name) is 640×360 (got \(info.map { "\($0.width)×\($0.height)" } ?? "unreadable"))")
-            check(abs((info?.duration ?? 0) - 3) < 0.25, "\(wallpaper.name) lasts 3s (got \(info?.duration ?? 0))")
+            let width: Int = info?.width ?? 0
+            let height: Int = info?.height ?? 0
+            let duration: Double = info?.duration ?? 0
+            check(width == 640 && height == 360, "\(wallpaper.name) is 640×360 (got \(width)×\(height))")
+            check(abs(duration - 3.0) < 0.25, "\(wallpaper.name) lasts 3s (got \(duration))")
             check(FileManager.default.fileExists(atPath: wallpaper.thumbnailURL.path), "\(wallpaper.name) has a thumbnail")
         }
 
@@ -202,11 +205,16 @@ enum SelfTest {
         do {
             let page = try PexelsProvider.page(from: pexels)
             let video = page.videos.first
+            let title: String = video?.title ?? "nil"
+            let fileCount: Int = video?.files.count ?? 0
+            let bestWidth: Int = video?.bestFile?.width ?? 0
+            let cappedWidth: Int = video?.preferredFile(for: .fhd)?.width ?? 0
+            let previewWidth: Int = video?.previewFile?.width ?? 0
             check(page.videos.count == 1 && page.hasMore, "Pexels response parses")
-            check(video?.title == "Rain drops on a window", "Pexels title derived from page URL (\(video?.title ?? "nil"))")
-            check(video?.files.count == 3 && video?.bestFile?.width == 3840, "Pexels renditions sorted best-first, HLS skipped")
-            check(video?.preferredFile(for: .fhd)?.width == 1920, "download quality cap picks 1080p")
-            check(video?.previewFile?.width == 960, "preview uses a small rendition")
+            check(title == "Rain drops on a window", "Pexels title derived from page URL (\(title))")
+            check(fileCount == 3 && bestWidth == 3840, "Pexels renditions sorted best-first, HLS skipped")
+            check(cappedWidth == 1920, "download quality cap picks 1080p")
+            check(previewWidth == 960, "preview uses a small rendition")
         } catch {
             check(false, "Pexels parsing threw \(error)")
         }
@@ -223,9 +231,12 @@ enum SelfTest {
         do {
             let page = try PixabayProvider.page(from: pixabay, page: 1, perPage: 30)
             let video = page.videos.first
+            let title: String = video?.title ?? "nil"
+            let fileCount: Int = video?.files.count ?? 0
+            let bestWidth: Int = video?.bestFile?.width ?? 0
             check(page.videos.count == 1 && !page.hasMore, "Pixabay response parses")
-            check(video?.files.count == 3 && video?.bestFile?.width == 3840, "Pixabay renditions parsed, empty ones skipped")
-            check(video?.title == "Rain, window, drops" && video?.thumbnailURL != nil, "Pixabay title and thumbnail")
+            check(fileCount == 3 && bestWidth == 3840, "Pixabay renditions parsed, empty ones skipped")
+            check(title == "Rain, window, drops" && video?.thumbnailURL != nil, "Pixabay title and thumbnail (\(title))")
         } catch {
             check(false, "Pixabay parsing threw \(error)")
         }
@@ -241,8 +252,11 @@ enum SelfTest {
             let resolved = try await discover.resolveFiles(for: video)
             note("NASA renditions for \(video.title): \(resolved.files.compactMap(\.label))")
             check(!resolved.files.isEmpty, "NASA manifest lists downloadable files")
-            let order = ["Mobile", "Preview", "Small", "Medium", "Large", "Original"]
-            guard let file = order.lazy.compactMap({ label in resolved.files.first { $0.label == label } }).first ?? resolved.files.last else { return }
+            var chosen: RemoteVideoFile?
+            for label in ["Mobile", "Preview", "Small", "Medium", "Large", "Original"] where chosen == nil {
+                chosen = resolved.files.first { $0.label == label }
+            }
+            guard let file = chosen ?? resolved.files.last else { return }
 
             await discover.download(resolved, file: file, setWhenFinished: true)
             let started = Date()
