@@ -36,6 +36,12 @@ struct DiscoverView: View {
             .padding(.top, 14)
             .padding(.bottom, 28)
         }
+        .task {
+            // Show something on first visit instead of an empty page.
+            if !discover.hasSearched, let first = discover.categories.first(where: { $0.id == "deep-space" }) ?? discover.categories.first {
+                discover.select(first)
+            }
+        }
         .sheet(item: $previewing) { video in
             RemotePreviewSheet(video: video)
                 .environmentObject(discover)
