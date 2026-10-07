@@ -3,6 +3,10 @@ import Foundation
 /// On-disk layout: ~/Library/Application Support/VideoWallpaper
 enum AppPaths {
     static let root: URL = {
+        // Lets CI and the self-test run against an isolated data directory.
+        if let override = ProcessInfo.processInfo.environment["VIDEOWALLPAPER_DATA_DIR"], !override.isEmpty {
+            return URL(fileURLWithPath: override, isDirectory: true)
+        }
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support", isDirectory: true)
         return base.appendingPathComponent("VideoWallpaper", isDirectory: true)

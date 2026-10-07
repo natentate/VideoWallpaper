@@ -5,6 +5,7 @@ import AVFoundation
 @MainActor
 final class WallpaperEngine {
     private var controllers: [String: ScreenController] = [:]
+    private var visibilityTimer: Timer?
 
     var videoGravity: AVLayerVideoGravity = .resizeAspectFill {
         didSet { controllers.values.forEach { $0.videoView.videoGravity = videoGravity } }
@@ -23,6 +24,7 @@ final class WallpaperEngine {
 
     /// - Parameter assignments: display id → video file. Displays without an entry show the system wallpaper.
     func sync(assignments: [String: URL]) {
+        startVisibilityPolling()
         var seen = Set<String>()
         for screen in NSScreen.screens {
             let id = screen.stableID
@@ -46,14 +48,46 @@ final class WallpaperEngine {
         updatePlayback()
     }
 
+    struct ScreenStatus {
+        let displayID: String
+        let isWindowOnScreen: Bool
+        let windowLevel: Int
+        let isVisible: Bool
+        let playback: VideoLayerView.PlaybackStatus?
+    }
+
+    var status: [ScreenStatus] {
+        controllers.map { id, controller in
+            ScreenStatus(
+                displayID: id,
+                isWindowOnScreen: controller.window.isVisible,
+                windowLevel: controller.window.level.rawValue,
+                isVisible: controller.isVisible,
+                playback: controller.videoView.playbackStatus
+            )
+        }
+    }
+
     func recover() {
         controllers.values.forEach { $0.recover() }
         updatePlayback()
     }
 
     func teardown() {
+        visibilityTimer?.invalidate()
+        visibilityTimer = nil
         controllers.values.forEach { $0.teardown() }
         controllers.removeAll()
+    }
+
+    /// Occlusion notifications can be missed (e.g. around Space switches), so re-check periodically.
+    private func startVisibilityPolling() {
+        guard visibilityTimer == nil else { return }
+        visibilityTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.controllers.values.forEach { $0.refreshVisibility() }
+            }
+        }
     }
 
     private func updatePlayback() {
@@ -85,7 +119,7 @@ final class ScreenController {
             queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
-                self?.occlusionChanged()
+                self?.refreshVisibility()
             }
         }
     }
@@ -131,7 +165,8 @@ final class ScreenController {
         url = nil
     }
 
-    private func occlusionChanged() {
+    func refreshVisibility() {
+        guard url != nil else { return }
         let visible = window.occlusionState.contains(.visible)
         guard visible != isVisible else { return }
         isVisible = visible

@@ -27,7 +27,13 @@ struct PexelsProvider: VideoSearchProvider {
             URLQueryItem(name: "page", value: String(page)),
         ]
         guard let url = components.url else { throw ProviderError.invalidResponse }
-        let response = try await HTTPClient.getJSON(PexelsResponse.self, from: url, headers: ["Authorization": apiKey], source: .pexels)
+        let data = try await HTTPClient.getData(from: url, headers: ["Authorization": apiKey], source: .pexels)
+        return try Self.page(from: data)
+    }
+
+    /// Parses a /videos/search or /videos/popular response.
+    static func page(from data: Data) throws -> SearchPage {
+        let response = try JSONDecoder().decode(PexelsResponse.self, from: data)
         let videos = (response.videos ?? []).compactMap(Self.map)
         return SearchPage(videos: videos, hasMore: response.nextPage != nil)
     }
@@ -132,7 +138,13 @@ struct PixabayProvider: VideoSearchProvider {
             URLQueryItem(name: "page", value: String(page)),
         ]
         guard let url = components.url else { throw ProviderError.invalidResponse }
-        let response = try await HTTPClient.getJSON(PixabayResponse.self, from: url, source: .pixabay)
+        let data = try await HTTPClient.getData(from: url, source: .pixabay)
+        return try Self.page(from: data, page: page, perPage: perPage)
+    }
+
+    /// Parses a /api/videos/ response.
+    static func page(from data: Data, page: Int, perPage: Int) throws -> SearchPage {
+        let response = try JSONDecoder().decode(PixabayResponse.self, from: data)
         let videos = (response.hits ?? []).compactMap(Self.map)
         let totalHits = response.totalHits ?? 0
         return SearchPage(videos: videos, hasMore: page * perPage < totalHits)

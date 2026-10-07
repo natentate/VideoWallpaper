@@ -169,7 +169,7 @@ enum HTTPClient {
         return URLSession(configuration: configuration)
     }()
 
-    static func getJSON<T: Decodable>(_ type: T.Type, from url: URL, headers: [String: String] = [:], source: VideoSource) async throws -> T {
+    static func getData(from url: URL, headers: [String: String] = [:], source: VideoSource) async throws -> Data {
         var request = URLRequest(url: url)
         for (field, value) in headers {
             request.setValue(value, forHTTPHeaderField: field)
@@ -177,6 +177,11 @@ enum HTTPClient {
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw ProviderError.invalidResponse }
         guard (200..<300).contains(http.statusCode) else { throw ProviderError.http(http.statusCode, source) }
+        return data
+    }
+
+    static func getJSON<T: Decodable>(_ type: T.Type, from url: URL, headers: [String: String] = [:], source: VideoSource) async throws -> T {
+        let data = try await getData(from: url, headers: headers, source: source)
         return try JSONDecoder().decode(T.self, from: data)
     }
 

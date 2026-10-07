@@ -85,6 +85,8 @@ final class AppModel: ObservableObject {
         discover.bootstrap()
     }
 
+    var engineStatus: [WallpaperEngine.ScreenStatus] { engine.status }
+
     func shutdown() {
         engine.teardown()
         state.save()

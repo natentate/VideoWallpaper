@@ -72,6 +72,23 @@ final class VideoLayerView: NSView {
 
     var hasContent: Bool { !slots.isEmpty }
 
+    struct PlaybackStatus {
+        let isPlaying: Bool
+        let isReadyForDisplay: Bool
+        let currentTime: Double
+        let error: String?
+    }
+
+    var playbackStatus: PlaybackStatus? {
+        guard let slot = slots.last else { return nil }
+        return PlaybackStatus(
+            isPlaying: slot.player.timeControlStatus == .playing,
+            isReadyForDisplay: slot.layer.isReadyForDisplay,
+            currentTime: slot.player.currentTime().seconds,
+            error: (slot.player.currentItem?.error ?? slot.player.error)?.localizedDescription
+        )
+    }
+
     func play(url: URL, animated: Bool) {
         let slot = Slot(url: url, gravity: videoGravity)
         CATransaction.begin()

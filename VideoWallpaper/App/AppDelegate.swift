@@ -13,6 +13,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         launchedAsLoginItem = launchedAsLoginItem || Self.isLoginItemLaunch()
         // Registered again here so it takes precedence over any handler SwiftUI installs during launch.
         registerURLHandler()
+        if SelfTest.isRequested {
+            SelfTest.run()
+            return
+        }
         AppModel.shared.start()
         if !launchedAsLoginItem {
             MainWindowController.shared.show()

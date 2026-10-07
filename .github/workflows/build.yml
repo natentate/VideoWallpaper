@@ -32,6 +32,22 @@ jobs:
           path: build/VideoWallpaper.dmg
           if-no-files-found: error
 
+      - name: Verify Shortcuts / Focus Filter metadata
+        shell: bash
+        run: |
+          META="build/VideoWallpaper.app/Contents/Resources/Metadata.appintents"
+          ls -la "$META"
+          for intent in VideoWallpaperFocusFilter ActivateFocusWallpaperIntent DeactivateFocusWallpaperIntent SetVideoWallpaperIntent; do
+            if grep -q "$intent" "$META/extract.actionsdata"; then echo "✓ $intent"; else echo "✗ $intent missing"; exit 1; fi
+          done
+
+      - name: Self-test (render, play, Focus, URL scheme, downloads)
+        shell: bash
+        timeout-minutes: 10
+        env:
+          VIDEOWALLPAPER_DATA_DIR: ${{ runner.temp }}/videowallpaper-selftest
+        run: build/VideoWallpaper.app/Contents/MacOS/VideoWallpaper --self-test 2>&1
+
       - name: Publish release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
